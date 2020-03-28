@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "🎮 A desktop streaming utility for Twitch which is compatible with Chromebooks.",
   "scripts": {
-    "build": "node utils/build.js ; mv build ~/Downloads/twitch-go",
-    "start": "node utils/webserver.js"
+    "build": "node config/build.js ; mv build ~/Downloads/twitch-go",
+    "start": "node config/webserver.js"
   },
   "devDependencies": {
     "clean-webpack-plugin": "3.0.0",

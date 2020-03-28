@@ -1,7 +1,7 @@
 var webpack = require("webpack"),
     path = require("path"),
     fileSystem = require("fs"),
-    env = require("./utils/env"),
+    env = require("./config/env"),
     CleanWebpackPlugin = require("clean-webpack-plugin").CleanWebpackPlugin,
     CopyWebpackPlugin = require("copy-webpack-plugin"),
     HtmlWebpackPlugin = require("html-webpack-plugin"),
