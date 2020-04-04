@@ -1,0 +1,17 @@
+{
+  "name": "Twitch Go!",
+  "version": "2",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icon.png",
+    "128": "icon.png"
+  },
+  "app": {
+    "background": {
+      "scripts": ["index.js"]
+    }
+  },
+  "permissions": [
+    "desktopCapture"
+  ]
+}
