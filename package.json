@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "babel-loader": "^8.1.0",
+    "ffmpeg.js": "^3.1.9001",
     "file-loader": "^6.0.0"
   }
 }

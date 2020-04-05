@@ -36,4 +36,6 @@ module.exports = {
       { from: './extension/manifest.json', to: './manifest.json' },
     ]),
   ],
+  // XXX: hack to make fs work
+  target: 'node',
 };
