@@ -4,6 +4,8 @@ import React from "react";
 import ReactDOM from "react-dom";
 import ffmpeg from "ffmpeg.js/ffmpeg-mp4";
 
+// ffmpeg -i howto.mp4 -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp
+
 ReactDOM.render(
   <>hello</>,
   document.getElementById("root"),
