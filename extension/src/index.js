@@ -2,7 +2,7 @@ import "@babel/polyfill";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import ffmpeg from "ffmpeg.js/ffmpeg-webm.js";
+import ffmpeg from "ffmpeg.js/ffmpeg-mp4";
 
 ReactDOM.render(
   <>hello</>,
@@ -73,7 +73,9 @@ function gotStream(stream) {
 
     const result = ffmpeg({
       MEMFS: [{name: "test.webm", data }],
-      arguments: ["-i", "test.webm", "-c:v", "libvpx", "-an", "out.webm"],
+      stdin: () => null,
+      arguments: ["-i", "test.webm", "-f", "mp4", "-codec", "copy", "out.mp4"],
+      //arguments: ["-i", "test.webm", "-c:v", "libvpx", "-an", "out.mp4"],
       print: function(data) { stdout += data + "\n"; },
       printErr: function(data) { stderr += data + "\n"; },
       onExit: function(code) {
