@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://twitch.com">
-    <img src="https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg" alt="twitch"/>
+    <img style="height:150px;" src="https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg" alt="twitch"/>
   </a>
 </p>
 
