@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyPlugin  = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   entry: './extension/src/index.js',
@@ -37,8 +38,8 @@ module.exports = {
     minimize: false,
   },
   plugins: [
+    new Dotenv(),
     new CopyPlugin([
-      { from: './node_modules/@ffmpeg/core/ffmpeg-core.js', to: './ffmpeg-core.js' },
       { from: './extension/index.js', to: './index.js' },
       { from: './extension/icon.png', to: './icon.png' },
       { from: './extension/index.html', to: './index.html' },
