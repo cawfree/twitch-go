@@ -14,7 +14,7 @@ const dir = 'public';
   await fs.writeFile(
     `${dir}/list.txt`, `ffconcat version 1.0\nfile item_0.webm\nfile item_0.webm`,
   );
-  const cmd = `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp`;
+  const cmd = `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp`;
   exec(cmd);
   await new Promise(
     resolve => express()
