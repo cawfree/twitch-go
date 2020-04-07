@@ -2,14 +2,17 @@
   "name": "Twitch Go!",
   "version": "2",
   "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://unpkg.com; object-src 'self'",
   "icons": {
     "16": "icon.png",
     "128": "icon.png"
   },
-  "app": {
-    "background": {
-      "scripts": ["index.js"]
-    }
+  "background": {
+    "scripts": ["index.js"]
+  },
+  "browser_action": {
+    "default_popup": "index.html"
   },
   "permissions": [
     "desktopCapture"

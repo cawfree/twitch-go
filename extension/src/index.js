@@ -2,9 +2,26 @@ import "@babel/polyfill";
 
 import React from "react";
 import ReactDOM from "react-dom";
-import ffmpeg from "ffmpeg.js/ffmpeg-mp4";
+
+const { createWorker } = FFmpeg;
+
+//import { createWorker } from "@ffmpeg/ffmpeg";
+//
+//const worker = createWorker({
+//  corePath: './ffmpeg-core.js',
+//  logger: m => console.log(m)
+//});
+
+//import Worker from './ffmpeg.worker.js';
+//const ffmpeg = new Worker('./ffmpeg.js', { type: 'module' });
+
+//ffmpeg.onmessage = e => console.log(e.data);
+
+//ffmpeg.postMessage({ hello: 'world' });
 
 // ffmpeg -i howto.mp4 -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp
+// webm:
+// ffmpeg -i test.webm -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp
 
 ReactDOM.render(
   <>hello</>,
@@ -52,52 +69,60 @@ function onAccessApproved(desktop_id) {
   }, gotStream, getUserMediaError);
 }
 
-function gotStream(stream) {
+async function gotStream(stream) {
   local_stream = stream;
   const videoElem = document.querySelector('video');
   videoElem.srcObject = stream;
 
   const options = {mimeType: 'video/webm;codecs=h264'}; 
   const mediaRecorder = new MediaRecorder(stream, options);
+
+  const worker = createWorker({
+    logger: ({ message }) => console.log(message),
+  });
+  await worker.load();
+
+  console.log('worker has loaded...');
+  
   const recordedBlobs = [];
 
   mediaRecorder.onstop = async () => {
-    console.log('got stop');
+    console.log('was stopped');
     const blob = new Blob(recordedBlobs, options);
-    // XXX: Convert into Uint8.
     const data = await blob.arrayBuffer();
 
-    console.log('webm video is',blob);
-    console.log('data is',data);
-
-    var stdout = "";
-    var stderr = "";
-
-    const result = ffmpeg({
-      MEMFS: [{name: "test.webm", data }],
-      stdin: () => null,
-      arguments: ["-i", "test.webm", "-f", "mp4", "-codec", "copy", "out.mp4"],
-      //arguments: ["-i", "test.webm", "-c:v", "libvpx", "-an", "out.mp4"],
-      print: function(data) { stdout += data + "\n"; },
-      printErr: function(data) { stderr += data + "\n"; },
-      onExit: function(code) {
-        console.log("Process exited with code " + code);
-        console.log(stdout);
-        console.log(stderr);
-      },
-    });
-  };
-  mediaRecorder.ondataavailable = (event) => {
     console.log('got data');
+
+    await worker.write('test.webm', data);
+    console.log('written test data');
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    console.log('running...');
+    // XXX: So that works?
+    //await worker.run("-i test.webm -s 1920x1080 output.mp4");
+    await worker.run(
+      '-i test.webm -d 10000 -ar 44100 out.flv',
+    );
+    console.log('did it');
+
+      //'-i test.webm -d 10000 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp',
+    //await worker.run(
+    //  '-i test.webm -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp',
+    //);
+  };
+
+  mediaRecorder.ondataavailable = async (event) => {
     if (event.data && event.data.size > 0) {
       recordedBlobs.push(event.data);
     }
   };
-  console.log('starting');
+
   mediaRecorder.start(1000);
+
   setTimeout(
     () => mediaRecorder.stop(),
-    1000,
+    10000,
   );
 }
 

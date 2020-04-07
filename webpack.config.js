@@ -23,6 +23,14 @@ module.exports = {
           }
         }
       },
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' }
+      },
+      {
+        test: /\.wasm$/,
+        loaders: ['wasm-loader']
+      }
     ],
   },
   optimization: {
@@ -30,6 +38,7 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin([
+      { from: './node_modules/@ffmpeg/core/ffmpeg-core.js', to: './ffmpeg-core.js' },
       { from: './extension/index.js', to: './index.js' },
       { from: './extension/icon.png', to: './icon.png' },
       { from: './extension/index.html', to: './index.html' },
