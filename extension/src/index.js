@@ -2,26 +2,7 @@ import "@babel/polyfill";
 
 import React from "react";
 import ReactDOM from "react-dom";
-
-const { createWorker } = FFmpeg;
-
-//import { createWorker } from "@ffmpeg/ffmpeg";
-//
-//const worker = createWorker({
-//  corePath: './ffmpeg-core.js',
-//  logger: m => console.log(m)
-//});
-
-//import Worker from './ffmpeg.worker.js';
-//const ffmpeg = new Worker('./ffmpeg.js', { type: 'module' });
-
-//ffmpeg.onmessage = e => console.log(e.data);
-
-//ffmpeg.postMessage({ hello: 'world' });
-
-// ffmpeg -i howto.mp4 -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp
-// webm:
-// ffmpeg -i test.webm -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp
+import axios from "axios";
 
 ReactDOM.render(
   <>hello</>,
@@ -73,57 +54,48 @@ async function gotStream(stream) {
   local_stream = stream;
   const videoElem = document.querySelector('video');
   videoElem.srcObject = stream;
-
-  const options = {mimeType: 'video/webm;codecs=h264'}; 
-  const mediaRecorder = new MediaRecorder(stream, options);
-
-  const worker = createWorker({
-    logger: ({ message }) => console.log(message),
-  });
-  await worker.load();
-
-  console.log('worker has loaded...');
-  
-  const recordedBlobs = [];
-
-  mediaRecorder.onstop = async () => {
-    console.log('was stopped');
-    const blob = new Blob(recordedBlobs, options);
-    const data = await blob.arrayBuffer();
-
-    console.log('got data');
-
-    await worker.write('test.webm', data);
-    console.log('written test data');
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    console.log('running...');
-    // XXX: So that works?
-    //await worker.run("-i test.webm -s 1920x1080 output.mp4");
-    await worker.run(
-      '-i test.webm -d 10000 -ar 44100 out.flv',
+  while (true) {
+    await new Promise(
+      (resolve) => {
+        const blobs = [];
+        const options = {mimeType: 'video/webm;codecs=h264'}; 
+        const mediaRecorder = new MediaRecorder(stream, options);
+        mediaRecorder.onstop = async (event) => {
+          if (blobs.length > 0) {
+            const blob = new Blob(blobs, options);
+            const formData = new FormData();
+            formData.append('blob', blob, 'blob');
+            console.log('sending');
+            await axios({
+              url: 'http://localhost:3000/blob',
+              method: 'post',
+              headers: {
+                ['Content-Type']: 'multipart/form-data',
+              },
+              data: formData,
+            })
+              // TODO: Implement error handling.
+              .then(resolve)
+              .catch(
+                (e) => {
+                  console.error(e);
+                  resolve();
+                },
+              );
+          }
+        };
+        mediaRecorder.ondataavailable = async (event) => {
+          if (event.data && event.data.size > 0) {
+            blobs.push(event.data); 
+          }
+        }
+        mediaRecorder.start(250);
+        // XXX:  One-second slices.
+        // TODO: Definitions via API would be great.
+        setTimeout(() => mediaRecorder.stop(), 1000);
+      },
     );
-    console.log('did it');
-
-      //'-i test.webm -d 10000 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp',
-    //await worker.run(
-    //  '-i test.webm -framerate 30 -video_size 1280x720 -c:v libx264 -ar 44100 -f flv rtmp://live-lhr03.twitch.tv/app/live_106182096_kBSohhfylG2nCWSQSLX1nWACmsgDNp',
-    //);
-  };
-
-  mediaRecorder.ondataavailable = async (event) => {
-    if (event.data && event.data.size > 0) {
-      recordedBlobs.push(event.data);
-    }
-  };
-
-  mediaRecorder.start(1000);
-
-  setTimeout(
-    () => mediaRecorder.stop(),
-    10000,
-  );
+  }
 }
 
 function getUserMediaError(e) {
