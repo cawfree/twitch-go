@@ -1,5 +1,11 @@
 # Twitch a Gooooooooooooooo!*
 
+<p align="center">
+  <a href="https://twitch.com">
+    <img src="https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg" alt="twitch"/>
+  </a>
+</p>
+
 🎮 A desktop streaming utility for Twitch which is compatible with [chromebooks](https://www.google.com/intl/en_uk/chromebook/shop/?gclid=Cj0KCQjwybD0BRDyARIsACyS8muo3qfeKIJWHwOoFbmLGwCfeMXNERYLXMupIJj7iA9Y2lbPjjP-ndUaAsDjEALw_wcB&gclsrc=aw.ds). Now you can share your online adventures (or lonely isolation) with the rest of the gaming world.
 
 ## 1. about
@@ -14,18 +20,16 @@ Installation is split into two main pieces. The first is configuring the media t
 
 ### 2.1 preparing your environment
 
-Your development environment will be used to host the media server, written using [express]() and backed by [ffmpeg](). This doesn't have to be on your Chromebook; it can be any accessible IP on your network. However, this works just as fine directly on the same Chromebook from within the [crouton]() shell.
+Your development environment will be used to host the barebones media server, written using [express]() and backed by [ffmpeg](). This doesn't have to be on your Chromebook; it can be any accessible IP on your network. However, this works just as fine directly on the same Chromebook from within the [crouton]() shell.
 
 The extension will be compiled from this project and then installed to [Chrome]().
 
 **Note:**
 
-> Originally, this repository was aiming at accomplishing everything using just a single extension. There have been some [truly great strides]() towards embedding [ffpmeg in JavaScript]() and [WebAssembly](), however it does not at this time seem possible to hit the [TCP/IP-based]() `rtmp://` protocol directly from [emscripten]().
+> Originally, this repository was aiming at accomplishing everything using just a single extension. There have been some [truly great strides]() towards embedding [ffpmeg in JavaScript]() and [WebAssembly](), however it does not at this time seem possible to hit the [TCP/IP-based]() `rtmp://` protocol directly from [emscripten](). In the future, we may see implementations using [WebRTC](), or potential workarounds with open-source [`swf`]() playback.
 
-  1. First, ensure you have [ffmpeg]() installed.
-     It must be the latest version (i.e. have support for the [`-stream_loop`]() flag).
-     [apt-get](https://tecadmin.net/install-ffmpeg-on-linux/)
-     [brew](https://formulae.brew.sh/formula/ffmpeg)
+  1. First, ensure you have the latest version of [ffmpeg]() installed.
+     ([apt-get](https://tecadmin.net/install-ffmpeg-on-linux/)) ([brew](https://formulae.brew.sh/formula/ffmpeg))
   2. Next, you need to have [the Node.js runtime installed](https://nodejs.org/en/download/).
   3. Then, you need to clone this repo.
      `git clone https://github.com/cawfree/twitch-go`
