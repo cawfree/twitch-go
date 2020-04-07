@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "rm -rf ~/Downloads/twitch-go ; npx webpack ; mv dist ~/Downloads/twitch-go ;",
+    "build": "rm -rf ~/Downloads/twitch-go ; npx webpack ;",
     "serve": "node_modules/.bin/babel-node server"
   },
   "devDependencies": {
@@ -10,6 +10,7 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
     "body-parser": "^1.19.0",
+    "chalk": "^4.0.0",
     "copy-webpack-plugin": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv-webpack": "^1.7.0",
@@ -28,5 +29,13 @@
     "dotenv": "^8.2.0",
     "file-loader": "^6.0.0",
     "nanoid": "^3.0.2"
-  }
+  },
+  "name": "twitch-go",
+  "version": "0.0.1-alpha.0",
+  "description": "🎮 A desktop streaming utility for Twitch which is compatible with Chromebooks.",
+  "main": "server",
+  "repository": "https://github.com/cawfree/twitch-go",
+  "author": "Alex Thomas (@cawfree) <hello@cawfree.com>",
+  "license": "MIT",
+  "private": false
 }

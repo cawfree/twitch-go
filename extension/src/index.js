@@ -68,7 +68,7 @@ const recordSegment = (stream, duration) => new Promise(
     mediaRecorder.ondataavailable = event => (event.data && event.data.size > 0) && (
       blobs.push(event.data)
     );
-    mediaRecorder.start(Math.floor(duration * 0.25));
+    mediaRecorder.start();
     // XXX:  One-second slices.
     // TODO: Definitions via API would be great.
     setTimeout(() => mediaRecorder.stop(), duration);
