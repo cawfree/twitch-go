@@ -1,8 +1,8 @@
 # Twitch a Gooooooooooooooo!*
 
 <p align="center">
-  <a href="https://twitch.com">
-    <img style="height:150px;" src="https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg" alt="twitch"/>
+  <a href="https://www.twitch.tv">
+    <img height="128" src="https://blog.twitch.tv/assets/uploads/generic-email-header-1.jpg" alt="twitch"/>
   </a>
 </p>
 
@@ -12,7 +12,7 @@
 
 Twitch is a video streaming service where both competitive gamers and filthy causals come together as one to share high-quality gaming footage, fight for speed running world records and compete with one-another for _epic loot_.
 
-This repository aims to help Chromebook users to get involved, by enabling their Chrome desktop to be streamed directly to [Twitch]() with low latency, with the help of a little extension.
+This repository aims to help Chromebook users to get involved, by enabling their Chrome desktop to be streamed directly to [Twitch](https://www.twitch.tv/) with low latency, with the help of a little extension.
 
 ## 2. installing
 
@@ -20,21 +20,21 @@ Installation is split into two main pieces. The first is configuring the media t
 
 ### 2.1 preparing your environment
 
-Your development environment will be used to host the barebones media server, written using [express]() and backed by [ffmpeg](). This doesn't have to be on your Chromebook; it can be any accessible IP on your network. However, this works just as fine directly on the same Chromebook from within the [crouton]() shell.
+Your development environment will be used to host the barebones media server, written using [express](https://github.com/expressjs/express) and powered by [ffmpeg](https://github.com/FFmpeg/FFmpeg). This doesn't have to be on your Chromebook; it can be any accessible IP on your network. However, this works just as fine directly on the same Chromebook from within the [crouton](https://ubuntu.com/tutorials/install-ubuntu-on-chromebook) shell.
 
-The extension will be compiled from this project and then installed to [Chrome]().
+The extension will be compiled from this project and then installed to [Chrome](https://www.google.com/chrome/).
 
 **Note:**
 
-> Originally, this repository was aiming at accomplishing everything using just a single extension. There have been some [truly great strides]() towards embedding [ffpmeg in JavaScript]() and [WebAssembly](), however it does not at this time seem possible to hit the [TCP/IP-based]() `rtmp://` protocol directly from [emscripten](). In the future, we may see implementations using [WebRTC](), or potential workarounds with open-source [`swf`]() playback.
+> Originally, this repository was aiming at accomplishing everything using just a single extension. There have been some [truly great strides](https://github.com/ffmpegjs/ffmpeg.js/) towards embedding [ffpmeg in JavaScript](https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-5-ffmpeg-js-v0-3-pre-js-and-live-streaming-c1498939a74c) and [WebAssembly](https://webassembly.org/), however it does not at this time seem possible to hit the [TCP/IP-based](https://en.wikipedia.org/wiki/Real-Time_Messaging_Protocol) `rtmp://` protocol directly from [emscripten](https://emscripten.org/).
 
-  1. First, ensure you have the latest version of [ffmpeg]() installed.
+  1. First, ensure you have the latest version of [ffmpeg](http://ffmpeg.org/download.html) installed.
      ([apt-get](https://tecadmin.net/install-ffmpeg-on-linux/)) ([brew](https://formulae.brew.sh/formula/ffmpeg))
   2. Next, you need to have [the Node.js runtime installed](https://nodejs.org/en/download/).
   3. Then, you need to clone this repo.
      `git clone https://github.com/cawfree/twitch-go`
   4. `cd` into the downloaded repo and hit `npm install`. This will download all of the required dependencies.
-  5. Finally, inside the project directory you will need to create a [`.env`]() file to store your Twitch access credentials. These will look like the following:
+  5. Finally, inside the project directory you will need to create a [`.env`](https://www.npmjs.com/package/dotenv) file to store your Twitch access credentials. These will look like the following:
 
 ```env
 PORT=8080
