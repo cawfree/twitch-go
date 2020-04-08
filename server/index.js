@@ -13,7 +13,8 @@ import { config } from "dotenv";
 config();
 
 const dir = 'public';
-const path = `${dir}/item_0.webm`;
+const cameraPath = `${dir}/camera.webm`;
+const desktopPath = `${dir}/desktop.webm`;
 
 const {
   PORT,
@@ -58,17 +59,28 @@ const startStreaming = () => Promise
     resolve => express()
       .use(cors())
       .use(json({ limit: '50mb' }))
-      .post('/blob', multer().single('blob'), (req, res) => {
-        const shouldExec = cnt === 0;
-        return fs.writeFile(
-          path,
+      .post('/desktop', multer().single('blob'), (req, res) => fs
+        .writeFile(
+          desktopPath,
           Buffer.from(new Uint8Array(req.file.buffer)),
         )
-          .then(() => res.status(200).send())
-          .then(() => cnt++)
-          // XXX: After receiving the first file, start streaming.
-          .then(() => (!!shouldExec) && startStreaming());
-      })
+        .then(() => res.status(200).send())
+        .then(() => console.log('got desk')),
+      )
+      .post('/camera', multer().single('blob'), (req, res) => fs
+        .writeFile(
+          cameraPath,
+          Buffer.from(new Uint8Array(req.file.buffer)),
+        )
+        .then(() => res.status(200).send())
+        .then(() => console.log('got cam')),
+      )
       .listen(PORT, resolve),
   );
 })();
+
+//console.log(req.file.type);
+//const shouldExec = cnt === 0;
+//  .then(() => cnt++)
+// XXX: After receiving the first file, start streaming.
+//.then(() => (!!shouldExec) && startStreaming());

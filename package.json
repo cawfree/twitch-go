@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "rm -rf ~/Downloads/twitch-go ; npx webpack ;",
+    "build": "rm -rf ~/Downloads/twitch-go ; npx webpack ; mv dist ~/Downloads/twitch-go",
     "serve": "node_modules/.bin/babel-node server"
   },
   "devDependencies": {

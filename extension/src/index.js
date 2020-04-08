@@ -4,6 +4,17 @@ import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
 
+const attemptCameraCapture = () => new Promise(
+  (resolve, reject) => navigator.webkitGetUserMedia(
+    {
+      video: true,
+      audio: true,
+    },
+    resolve,
+    reject,
+  ),
+);
+
 const attemptDesktopCapture = () => new Promise(
   resolve => chrome.desktopCapture.chooseDesktopMedia(
     ["screen", "window"],
@@ -38,7 +49,7 @@ const attemptDesktopCapture = () => new Promise(
     },
   );
 
-const recordSegment = (stream, duration) => new Promise(
+const recordSegment = (type, stream, duration) => new Promise(
   (resolve, reject) => {
     const blobs = [];
     const options = {
@@ -48,16 +59,16 @@ const recordSegment = (stream, duration) => new Promise(
     mediaRecorder.onstop = async (event) => {
       if (blobs.length > 0) {
         const blob = new Blob(blobs, options);
-        const formData = new FormData();
-        formData.append('blob', blob, 'blob');
+        const data = new FormData();
+        data.append('blob', blob, 'blob');
         try {
           axios({
-            url: `http://localhost:${process.env.PORT}/blob`,
+            url: `http://localhost:${process.env.PORT}/${type}`,
             method: 'post',
             headers: {
               ['Content-Type']: 'multipart/form-data',
             },
-            data: formData,
+            data,
           })
           resolve();
         } catch (e) {
@@ -75,41 +86,69 @@ const recordSegment = (stream, duration) => new Promise(
   },
 );
 
+const startStreaming = (ref, type, stream, duration) => {
+  ref.current.srcObject = stream;
+  ref.current.play();
+  ref.current.volume = 0;
+  ref.current.muted = true;
+  const i = setInterval(
+    () => recordSegment(type, stream, duration),
+    duration,
+  );
+  return () => clearInterval(i);
+};
+
 const TwitchGo = ({ duration, ...extraProps }) => {
-  const ref = useRef();
-  const [stream, setStream] = useState(null);
+  const cameraRef = useRef();
+  const desktopRef = useRef();
+  const [cameraStream, setCameraStream] = useState(null);
+  const [desktopStream, setDesktopStream] = useState(null);
   useEffect(
-    () => attemptDesktopCapture()
-      .then(stream => setStream(stream)) && undefined,
+    () => attemptCameraCapture()
+      .then(stream => setCameraStream(stream))
+      .then(() => attemptDesktopCapture())
+      .then(stream => setDesktopStream(stream)) && undefined,
     [],
   );
   useEffect(
     () => {
-      if (!!stream) {
-        ref.current.srcObject = stream;
-        ref.current.play();
-        const i = setInterval(
-          () => recordSegment(stream, duration),
-          duration,
-        );
-        return () => clearInterval(i);
+      if (!!cameraStream) {
+        return startStreaming(cameraRef, 'camera', cameraStream, duration);
       }
     },
-    [stream],
+    [cameraStream],
+  );
+  useEffect(
+    () => {
+      if (!!desktopStream) {
+        return startStreaming(desktopRef, 'desktop', desktopStream, duration);
+      }
+    },
+    [desktopStream],
   );
   return (
     <div
       style={{
-        width: 760,
-        height: 440,
+        width: '100%',
+        height: '100%',
         backgroundColor: '#9146FF',
       }}
     >
       <video
-        ref={ref}
+        ref={desktopRef}
         style={{
           width: '100%',
           height: '100%',
+        }}
+      />
+      <video
+        ref={cameraRef}
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          width: '25%',
+          height: '25%',
         }}
       />
     </div>
