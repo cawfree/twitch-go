@@ -1,4 +1,4 @@
-# Twitch a Gooooooooooooooo!*
+# Twitch a Goooooooooooo!*
 
 <p align="center">
   <a href="https://www.twitch.tv">

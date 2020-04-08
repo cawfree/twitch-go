@@ -50,7 +50,7 @@ const startStreaming = () => Promise
   }
   await fs.writeFile(
     `${dir}/list.txt`,
-    `ffconcat version 1.0\n${[...Array(BUFFER_LENGTH)].map((_, i) => `file item_${i}.webm`).join('\n')}`,
+    `ffconcat version 1.0\n${[...Array(parseInt(BUFFER_LENGTH))].map((_, i) => `file item_${i}.webm`).join('\n')}`,
   );
   if (isNaN(PORT) || PORT <= 0) {
     throw new Error(`Expected .env to contain a positive integer PORT, but encountered ${PORT}.`);
@@ -67,7 +67,7 @@ const startStreaming = () => Promise
         const firstRun = cnt === 0;
         return fs
           .writeFile(
-            `${dir}/item_${cnt % BUFFER_LENGTH}.webm`,
+            `${dir}/item_${cnt % parseInt(BUFFER_LENGTH)}.webm`,
             Buffer.from(new Uint8Array(req.file.buffer)),
           )
           .then(() => cnt++)
