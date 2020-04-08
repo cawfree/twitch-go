@@ -6,7 +6,7 @@
   </a>
 </p>
 
-🎮 A desktop streaming utility for Twitch for [chromebooks](https://www.google.com/intl/en_uk/chromebook/shop/?gclid=Cj0KCQjwybD0BRDyARIsACyS8muo3qfeKIJWHwOoFbmLGwCfeMXNERYLXMupIJj7iA9Y2lbPjjP-ndUaAsDjEALw_wcB&gclsrc=aw.ds). Now you can share your online adventures (or lonely isolation) with the rest of the gaming world.
+🎮 A Twitch streaming extension for [chromebooks](https://www.google.com/intl/en_uk/chromebook/shop/?gclid=Cj0KCQjwybD0BRDyARIsACyS8muo3qfeKIJWHwOoFbmLGwCfeMXNERYLXMupIJj7iA9Y2lbPjjP-ndUaAsDjEALw_wcB&gclsrc=aw.ds). Now you can share your online adventures (or lonely isolation) with the rest of the gaming world.
 
 ## 1. about
 
@@ -51,7 +51,7 @@ You can then run your server with a call to `npm run-script serve`.
   3. Click on **Load Unpacked**.
   4. Navigate to the `dist/` folder and select to install.
 
-## License
+## 3. license
 [MIT](https://opensource.org/licenses/MIT)
 
 <sub>
