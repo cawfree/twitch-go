@@ -6,7 +6,7 @@
   </a>
 </p>
 
-🎮 A desktop streaming utility for Twitch which is compatible with [chromebooks](https://www.google.com/intl/en_uk/chromebook/shop/?gclid=Cj0KCQjwybD0BRDyARIsACyS8muo3qfeKIJWHwOoFbmLGwCfeMXNERYLXMupIJj7iA9Y2lbPjjP-ndUaAsDjEALw_wcB&gclsrc=aw.ds). Now you can share your online adventures (or lonely isolation) with the rest of the gaming world.
+🎮 A desktop streaming utility for Twitch for [chromebooks](https://www.google.com/intl/en_uk/chromebook/shop/?gclid=Cj0KCQjwybD0BRDyARIsACyS8muo3qfeKIJWHwOoFbmLGwCfeMXNERYLXMupIJj7iA9Y2lbPjjP-ndUaAsDjEALw_wcB&gclsrc=aw.ds). Now you can share your online adventures (or lonely isolation) with the rest of the gaming world.
 
 ## 1. about
 
