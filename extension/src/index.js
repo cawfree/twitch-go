@@ -3,6 +3,11 @@ import "@babel/polyfill";
 import React, { useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+import VideoStreamMerger from "video-stream-merger";
+import { useWindowSize } from "react-use";
+
+const width = window.screen.width;
+const height = window.screen.height;
 
 const attemptCameraCapture = () => new Promise(
   (resolve, reject) => navigator.webkitGetUserMedia(
@@ -32,10 +37,10 @@ const attemptDesktopCapture = () => new Promise(
                 mandatory: {
                   chromeMediaSource: 'desktop',
                   chromeMediaSourceId,
-                  minWidth: 1280,
-                  maxWidth: 1280,
-                  minHeight: 720,
-                  maxHeight: 720,
+                  minWidth: width,
+                  maxWidth: width,
+                  minHeight: height,
+                  maxHeight: height,
                 },
               },
             },
@@ -86,11 +91,7 @@ const recordSegment = (type, stream, duration) => new Promise(
   },
 );
 
-const startStreaming = (ref, type, stream, duration) => {
-  ref.current.srcObject = stream;
-  ref.current.play();
-  ref.current.volume = 0;
-  ref.current.muted = true;
+const startStreaming = (type, stream, duration) => {
   const i = setInterval(
     () => recordSegment(type, stream, duration),
     duration,
@@ -99,10 +100,12 @@ const startStreaming = (ref, type, stream, duration) => {
 };
 
 const TwitchGo = ({ duration, ...extraProps }) => {
-  const cameraRef = useRef();
-  const desktopRef = useRef();
+  const ref = useRef();
   const [cameraStream, setCameraStream] = useState(null);
   const [desktopStream, setDesktopStream] = useState(null);
+  const [merger, setMerger] = useState(null);
+  const windowSize = useWindowSize();
+
   useEffect(
     () => attemptCameraCapture()
       .then(stream => setCameraStream(stream))
@@ -112,46 +115,58 @@ const TwitchGo = ({ duration, ...extraProps }) => {
   );
   useEffect(
     () => {
-      if (!!cameraStream) {
-        return startStreaming(cameraRef, 'camera', cameraStream, duration);
+      if (!!cameraStream && !!desktopStream) {
+        const scale = 0.4;
+        const merger = new VideoStreamMerger({
+          width: width * scale,
+          height: height * scale,
+          fps: 25,
+        });
+        const size = width * scale * 0.25;
+        merger.addStream(
+          desktopStream,
+          {
+            x: 0,
+            y: 0,
+            width: merger.width,
+            height: merger.height,
+            mute: true,
+          },
+        );
+        merger.addStream(
+          cameraStream,
+          {
+            x: merger.width - size,
+            y: merger.height - size,
+            width: size,
+            height: size,
+            mute: false,
+          },
+        );
+        setMerger(merger);
       }
     },
-    [cameraStream],
+    [cameraStream, desktopStream],
   );
   useEffect(
     () => {
-      if (!!desktopStream) {
-        return startStreaming(desktopRef, 'desktop', desktopStream, duration);
+      if (merger) {
+        merger.start();
+        const { result: srcObject } = merger;
+        ref.current.srcObject = srcObject;
+        ref.current.volume = 0;
+        ref.current.muted = true;
+        ref.current.play();
+        return startStreaming('desktop', srcObject, duration);
       }
     },
-    [desktopStream],
+    [merger],
   );
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        backgroundColor: '#9146FF',
-      }}
-    >
-      <video
-        ref={desktopRef}
-        style={{
-          width: '100%',
-          height: '100%',
-        }}
-      />
-      <video
-        ref={cameraRef}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          width: '25%',
-          height: '25%',
-        }}
-      />
-    </div>
+    <video
+      ref={ref}
+      style={windowSize}
+    />
   );
 };
 

@@ -13,8 +13,7 @@ import { config } from "dotenv";
 config();
 
 const dir = 'public';
-const cameraPath = `${dir}/camera.webm`;
-const desktopPath = `${dir}/desktop.webm`;
+const path = `${dir}/item_0.webm`;
 
 const {
   PORT,
@@ -22,20 +21,24 @@ const {
   TWITCH_SECRET,
 } = process.env;
 
+const shouldExec = cmd => new Promise(
+  (resolve, reject) => exec(
+    cmd,
+    (err, stdout, stderr) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(stdout || stderr);
+    },
+  )
+);
+
 const startStreaming = () => Promise
   .resolve()
   .then(() => console.log(`👍`))
   .then(
-    () => new Promise(
-      (resolve, reject) => exec(
-        `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
-        (err, stdout, stderr) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve(stdout || stderr);
-        },
-      ),
+    () => shouldExec(
+      `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
     ),
   );
 
@@ -59,28 +62,17 @@ const startStreaming = () => Promise
     resolve => express()
       .use(cors())
       .use(json({ limit: '50mb' }))
-      .post('/desktop', multer().single('blob'), (req, res) => fs
-        .writeFile(
-          desktopPath,
-          Buffer.from(new Uint8Array(req.file.buffer)),
-        )
-        .then(() => res.status(200).send())
-        .then(() => console.log('got desk')),
-      )
-      .post('/camera', multer().single('blob'), (req, res) => fs
-        .writeFile(
-          cameraPath,
-          Buffer.from(new Uint8Array(req.file.buffer)),
-        )
-        .then(() => res.status(200).send())
-        .then(() => console.log('got cam')),
-      )
+      .post('/desktop', multer().single('blob'), (req, res) => {
+        const shouldExec = cnt === 0;
+        return fs
+          .writeFile(
+            path,
+            Buffer.from(new Uint8Array(req.file.buffer)),
+          )
+          .then(() => cnt ++)
+          .then(() => res.status(200).send())
+          .then(() => (!!shouldExec) && startStreaming());
+      })
       .listen(PORT, resolve),
   );
 })();
-
-//console.log(req.file.type);
-//const shouldExec = cnt === 0;
-//  .then(() => cnt++)
-// XXX: After receiving the first file, start streaming.
-//.then(() => (!!shouldExec) && startStreaming());
