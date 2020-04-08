@@ -72,7 +72,6 @@ const startStreaming = () => Promise
           )
           .then(() => cnt++)
           .then(() => res.status(200).send())
-          .then(() => console.log(`chunk #${cnt - 1}`))
           .then(() => (!!firstRun) && startStreaming());
       })
       .listen(PORT, resolve),
