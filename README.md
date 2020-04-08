@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://www.twitch.tv">
-    <img height="256" src="assets/demo.jpg" alt="twitch"/>
+    <img height="350" src="assets/demo.jpg" alt="twitch"/>
   </a>
 </p>
 
