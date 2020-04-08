@@ -1,4 +1,4 @@
-# Twitch a Gooooooooooooooo!*
+# Twitch a Goooooooooooo!*
 
 <p align="center">
   <a href="https://www.twitch.tv">
@@ -40,6 +40,9 @@ The extension will be compiled from this project and then installed to [Chrome](
 PORT=8080
 INGEST=rtmp://live-lhr03.twitch.tv/app
 TWITCH_SECRET=live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+FRAME_RATE=20
+BUFFER_LENGTH=10
+DURATION=3000
 ```
 
 You can then run your server with a call to `npm run-script serve`. 

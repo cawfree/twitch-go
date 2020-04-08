@@ -3,6 +3,10 @@ chrome.app.runtime.onLaunched.addListener(
     'index.html',
     {
       id: "desktopCaptureID",
+      bounds: {
+        width: 1024,
+        height: 768,
+      },
     },
   ),
 );

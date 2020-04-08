@@ -13,28 +13,32 @@ import { config } from "dotenv";
 config();
 
 const dir = 'public';
-const path = `${dir}/item_0.webm`;
 
 const {
   PORT,
   INGEST,
   TWITCH_SECRET,
+  FRAME_RATE,
+  BUFFER_LENGTH,
 } = process.env;
 
+const shouldExec = cmd => new Promise(
+  (resolve, reject) => exec(
+    cmd,
+    (err, stdout, stderr) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(stdout || stderr);
+    },
+  )
+);
 const startStreaming = () => Promise
   .resolve()
   .then(() => console.log(`👍`))
   .then(
-    () => new Promise(
-      (resolve, reject) => exec(
-        `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
-        (err, stdout, stderr) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve(stdout || stderr);
-        },
-      ),
+    () => shouldExec(
+      `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate ${FRAME_RATE} -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
     ),
   );
 
@@ -45,7 +49,8 @@ const startStreaming = () => Promise
     mkdirSync(dir);
   }
   await fs.writeFile(
-    `${dir}/list.txt`, `ffconcat version 1.0\nfile item_0.webm\nfile item_0.webm`,
+    `${dir}/list.txt`,
+    `ffconcat version 1.0\n${[...Array(parseInt(BUFFER_LENGTH))].map((_, i) => `file item_${i}.webm`).join('\n')}`,
   );
   if (isNaN(PORT) || PORT <= 0) {
     throw new Error(`Expected .env to contain a positive integer PORT, but encountered ${PORT}.`);
@@ -57,17 +62,18 @@ const startStreaming = () => Promise
   await new Promise(
     resolve => express()
       .use(cors())
-      .use(json({ limit: '50mb' }))
-      .post('/blob', multer().single('blob'), (req, res) => {
-        const shouldExec = cnt === 0;
-        return fs.writeFile(
-          path,
-          Buffer.from(new Uint8Array(req.file.buffer)),
-        )
-          .then(() => res.status(200).send())
+      .use(json({ limit: '100mb' }))
+      .post('/desktop', multer().single('blob'), (req, res) => {
+        const firstRun = cnt === 0;
+        return fs
+          .writeFile(
+            `${dir}/item_${cnt % parseInt(BUFFER_LENGTH)}.webm`,
+            Buffer.from(new Uint8Array(req.file.buffer)),
+          )
           .then(() => cnt++)
-          // XXX: After receiving the first file, start streaming.
-          .then(() => (!!shouldExec) && startStreaming());
+          .then(() => res.status(200).send())
+          .then(() => console.log(`chunk #${cnt - 1}`))
+          .then(() => (!!firstRun) && startStreaming());
       })
       .listen(PORT, resolve),
   );
