@@ -54,49 +54,40 @@ const attemptDesktopCapture = () => new Promise(
     },
   );
 
-const recordSegment = (type, stream, duration) => new Promise(
-  (resolve, reject) => {
-    const blobs = [];
-    const options = {
-      mimeType: 'video/webm;codecs=h264',
-    }; 
-    const mediaRecorder = new MediaRecorder(stream, options);
-    mediaRecorder.onstop = async (event) => {
-      if (blobs.length > 0) {
-        const blob = new Blob(blobs, options);
-        const data = new FormData();
-        data.append('blob', blob, 'blob');
-        try {
-          axios({
-            url: `http://localhost:${process.env.PORT}/${type}`,
-            method: 'post',
-            headers: {
-              ['Content-Type']: 'multipart/form-data',
-            },
-            data,
-          })
-          resolve();
-        } catch (e) {
-          reject(e);
-        }
-      }
-    };
-    mediaRecorder.ondataavailable = event => (event.data && event.data.size > 0) && (
-      blobs.push(event.data)
-    );
-    mediaRecorder.start();
-    // XXX:  One-second slices.
-    // TODO: Definitions via API would be great.
-    setTimeout(() => mediaRecorder.stop(), duration);
-  },
-);
+const streamChunk = async (type, stream, duration) => {
+  const blobs = [];
+  const options = { mimeType: 'video/webm;codecs=h264' };
+  const mediaRecorder = new MediaRecorder(
+    stream,
+    options,
+  );
+  const blob = await new Promise(
+    (resolve) => {
+      mediaRecorder.ondataavailable = e => (e.data && e.data.size > 0) && blobs.push(e.data);
+      mediaRecorder.onstop = () => resolve(new Blob(blobs, options));
+      mediaRecorder.start(250);
+      setTimeout(() => mediaRecorder.stop(), duration);
+    },
+  );
+  const data = new FormData();
+  data.append('blob', blob, 'blob');
+  return data;
+};
 
 const startStreaming = (type, stream, duration) => {
-  const i = setInterval(
-    () => recordSegment(type, stream, duration),
+  const t = setInterval(
+    () => streamChunk(type, stream, duration)
+      .then(data => axios({
+        url: `http://localhost:${process.env.PORT}/${type}`,
+        method: 'post',
+        headers: {
+          ['Content-Type']: 'multipart/form-data',
+        },
+        data,
+      })),
     duration,
   );
-  return () => clearInterval(i);
+  return () => clearInterval(t);
 };
 
 const TwitchGo = ({ duration, ...extraProps }) => {
@@ -116,11 +107,11 @@ const TwitchGo = ({ duration, ...extraProps }) => {
   useEffect(
     () => {
       if (!!cameraStream && !!desktopStream) {
-        const scale = 0.4;
+        const scale = 1;
         const merger = new VideoStreamMerger({
           width: width * scale,
           height: height * scale,
-          fps: 25,
+          fps: process.env.FRAME_RATE,
         });
         const size = width * scale * 0.25;
         merger.addStream(
@@ -172,7 +163,7 @@ const TwitchGo = ({ duration, ...extraProps }) => {
 
 ReactDOM.render(
   <TwitchGo
-    duration={1000}
+    duration={process.env.DURATION}
   />,
   document.getElementById("root"),
 );

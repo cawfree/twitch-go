@@ -13,12 +13,13 @@ import { config } from "dotenv";
 config();
 
 const dir = 'public';
-const path = `${dir}/item_0.webm`;
 
 const {
   PORT,
   INGEST,
   TWITCH_SECRET,
+  FRAME_RATE,
+  BUFFER_LENGTH,
 } = process.env;
 
 const shouldExec = cmd => new Promise(
@@ -32,13 +33,12 @@ const shouldExec = cmd => new Promise(
     },
   )
 );
-
 const startStreaming = () => Promise
   .resolve()
   .then(() => console.log(`👍`))
   .then(
     () => shouldExec(
-      `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate 25 -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
+      `ffmpeg -re -stream_loop -1 -i ${dir}/list.txt -flush_packets 0 -framerate ${FRAME_RATE} -video_size 1280x720 -c:v libx264 -preset fast -ar 44100 -f flv ${INGEST}/${TWITCH_SECRET}`,
     ),
   );
 
@@ -49,7 +49,8 @@ const startStreaming = () => Promise
     mkdirSync(dir);
   }
   await fs.writeFile(
-    `${dir}/list.txt`, `ffconcat version 1.0\nfile item_0.webm\nfile item_0.webm`,
+    `${dir}/list.txt`,
+    `ffconcat version 1.0\n${[...Array(BUFFER_LENGTH)].map((_, i) => `file item_${i}.webm`).join('\n')}`,
   );
   if (isNaN(PORT) || PORT <= 0) {
     throw new Error(`Expected .env to contain a positive integer PORT, but encountered ${PORT}.`);
@@ -61,17 +62,18 @@ const startStreaming = () => Promise
   await new Promise(
     resolve => express()
       .use(cors())
-      .use(json({ limit: '50mb' }))
+      .use(json({ limit: '100mb' }))
       .post('/desktop', multer().single('blob'), (req, res) => {
-        const shouldExec = cnt === 0;
+        const firstRun = cnt === 0;
         return fs
           .writeFile(
-            path,
+            `${dir}/item_${cnt % BUFFER_LENGTH}.webm`,
             Buffer.from(new Uint8Array(req.file.buffer)),
           )
-          .then(() => cnt ++)
+          .then(() => cnt++)
           .then(() => res.status(200).send())
-          .then(() => (!!shouldExec) && startStreaming());
+          .then(() => console.log(`chunk #${cnt - 1}`))
+          .then(() => (!!firstRun) && startStreaming());
       })
       .listen(PORT, resolve),
   );
