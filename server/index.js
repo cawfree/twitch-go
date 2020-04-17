@@ -6,7 +6,6 @@ import cors from "cors";
 import chalk from "chalk";
 import { json } from "body-parser";
 import { promises as fs, existsSync, mkdirSync } from "fs";
-import { nanoid } from "nanoid";
 import { exec } from "child_process";
 import { config } from "dotenv";
 

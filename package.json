@@ -28,7 +28,6 @@
     "bufferutil": "^4.0.1",
     "dotenv": "^8.2.0",
     "file-loader": "^6.0.0",
-    "nanoid": "^3.0.2",
     "react-use": "^14.1.0",
     "video-stream-merger": "^3.3.1"
   },
