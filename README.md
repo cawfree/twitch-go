@@ -37,7 +37,7 @@ The extension will be compiled from this project and then installed to [Chrome](
   5. Finally, inside the project directory you will need to create a [`.env`](https://www.npmjs.com/package/dotenv) file to store your Twitch access credentials. These will look like the following:
 
 ```env
-PORT=8080
+PORT=5000
 INGEST=rtmp://live-lhr03.twitch.tv/app
 TWITCH_SECRET=live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 FRAME_RATE=20
